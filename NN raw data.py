@@ -13,9 +13,9 @@ y = df.iloc[:, 11].values
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1, stratify=y) #30% test set
 
-X_upsampled, y_upsampled = resample(X_train[y_train == 1], y_train[y_train == 1], replace=True, n_samples=X_train[y_train == 0].shape[0], random_state=1)
-X_train = np.vstack((X_train[y_train==0], X_upsampled))
-y_train = np.hstack((y_train[y_train==0], y_upsampled))
+# X_upsampled, y_upsampled = resample(X_train[y_train == 1], y_train[y_train == 1], replace=True, n_samples=X_train[y_train == 0].shape[0], random_state=1)
+# X_train = np.vstack((X_train[y_train==0], X_upsampled))
+# y_train = np.hstack((y_train[y_train==0], y_upsampled))
 
 from sklearn.preprocessing import StandardScaler
 sc = StandardScaler()
@@ -31,21 +31,21 @@ model = tf.keras.models.Sequential()
 
 model.add(
     tf.keras.layers.Dense(
-        units=12,
+        units=6,
         input_dim=X_train_std.shape[1],
         kernel_initializer='glorot_uniform',
         bias_initializer='zeros',
-        activation='tanh'
+        activation='relu'
     )
 )
 
 model.add(
     tf.keras.layers.Dense(
-        units=12,
-        input_dim=X_train_std.shape[1],
+        units=6,
+        input_dim=6,
         kernel_initializer='glorot_uniform',
         bias_initializer='zeros',
-        activation='tanh'
+        activation='relu'
     )
 )
 
@@ -53,6 +53,7 @@ model.add(
 model.add(
     tf.keras.layers.Dense(
         units=1,
+        input_dim=6,
         kernel_initializer='glorot_uniform',
         bias_initializer='zeros',
         activation='sigmoid'
@@ -65,7 +66,7 @@ optimizer = tf.keras.optimizers.Adam()
 
 model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy']) #0 또는 1로 분류하기 때문에 binary_crossentropy를 loss함수로 선정
 
-history = model.fit(X_train_std, y_train, batch_size=50, epochs=150, verbose=1, validation_split=0.1)
+history = model.fit(X_train_std, y_train, batch_size=50, epochs=50, verbose=1, validation_split=0.1)
 
 # history_dict = history.history
 # print(history_dict.keys())
@@ -98,7 +99,6 @@ y_test_pred = model.predict_classes(X_test_std, verbose=0)
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import roc_auc_score
-print('Train Accuracy score: %.3f' % (acc[-1]))
 print('Test Accuracy score: %.3f' % (accuracy_score(y_test, y_test_pred)))
 print('Test ROCAUC score: %.3f' % (roc_auc_score(y_test, y_test_pred)))
 
