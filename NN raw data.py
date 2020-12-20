@@ -116,5 +116,3 @@ plt.xlabel('predicted label')
 plt.ylabel('true label')
 plt.tight_layout()
 plt.show()
-
-print('a')

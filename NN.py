@@ -7,7 +7,7 @@ from sklearn.utils import resample
 
 ############################## Data import ##############################
 df = pd.read_csv(os.path.abspath('dataset.csv'),header=None)
-X = df.iloc[:, :11].values
+X = df.iloc[:, [2,3,4,5]].values
 y = df.iloc[:, 11].values
 
 from sklearn.model_selection import train_test_split
@@ -27,78 +27,20 @@ X_test_std = sc.transform(X_test)
 
 np.random.seed(1)
 
-model = tf.keras.models.Sequential()
+model = tf.keras.models.load_model('NN_classifier.h5')
+model.load_weights('NN_classifier.h5')
+model.summary()
 
-model.add(
-    tf.keras.layers.Dense(
-        units=12,
-        input_dim=X_train_std.shape[1],
-        kernel_initializer='glorot_uniform',
-        bias_initializer='zeros',
-        activation='tanh'
-    )
-)
-
-model.add(
-    tf.keras.layers.Dense(
-        units=12,
-        input_dim=X_train_std.shape[1],
-        kernel_initializer='glorot_uniform',
-        bias_initializer='zeros',
-        activation='tanh'
-    )
-)
-
-#binary classification을 위해 마지막 레이어는 유닛 하나에 activation function으로 sigmoid function을 사용함
-model.add(
-    tf.keras.layers.Dense(
-        units=1,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='zeros',
-        activation='sigmoid'
-    )
-)
-
-# model.summary()
-
-optimizer = tf.keras.optimizers.Adam()
-
-model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy']) #0 또는 1로 분류하기 때문에 binary_crossentropy를 loss함수로 선정
-
-history = model.fit(X_train_std, y_train, batch_size=50, epochs=150, verbose=1, validation_split=0.1)
 
 # history_dict = history.history
 # print(history_dict.keys())
 
 import matplotlib.pyplot as plt
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
-loss = history.history['loss']
-val_loss = history.history['val_loss']
-
-epochs = np.arange(1, len(acc)+1)
-
-plt.plot(epochs, loss, label='Training loss')
-plt.plot(epochs, val_loss, label='Validation loss')
-plt.title('Training and validation loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
-
-plt.plot(epochs, acc, label='Training accuracy')
-plt.plot(epochs, val_acc, label='Validation accuracy')
-plt.title('Training and validation accuracy')
-plt.xlabel('Epochs')
-plt.ylabel('accuracy')
-plt.legend()
-plt.show()
 
 y_test_pred = model.predict_classes(X_test_std, verbose=0)
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import roc_auc_score
-print('Train Accuracy score: %.3f' % (acc[-1]))
 print('Test Accuracy score: %.3f' % (accuracy_score(y_test, y_test_pred)))
 print('Test ROCAUC score: %.3f' % (roc_auc_score(y_test, y_test_pred)))
 
@@ -116,5 +58,3 @@ plt.xlabel('predicted label')
 plt.ylabel('true label')
 plt.tight_layout()
 plt.show()
-
-print('a')

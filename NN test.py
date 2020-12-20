@@ -7,7 +7,7 @@ from sklearn.utils import resample
 
 ############################## Data import ##############################
 df = pd.read_csv(os.path.abspath('dataset.csv'),header=None)
-X = df.iloc[:, :11].values
+X = df.iloc[:, [2,3,4,5]].values
 y = df.iloc[:, 11].values
 
 from sklearn.model_selection import train_test_split
@@ -31,7 +31,7 @@ model = tf.keras.models.Sequential()
 
 model.add(
     tf.keras.layers.Dense(
-        units=20,
+        units=8,
         input_dim=X_train_std.shape[1],
         kernel_initializer='glorot_uniform',
         bias_initializer='zeros',
@@ -41,7 +41,8 @@ model.add(
 
 # model.add(
 #     tf.keras.layers.Dense(
-#         units=20,
+#         units=12,
+#         input_dim=X_train_std.shape[1],
 #         kernel_initializer='glorot_uniform',
 #         bias_initializer='zeros',
 #         activation='tanh'
@@ -50,7 +51,8 @@ model.add(
 
 # model.add(
 #     tf.keras.layers.Dense(
-#         units=20,
+#         units=10,
+#         input_dim=X_train_std.shape[1],
 #         kernel_initializer='glorot_uniform',
 #         bias_initializer='zeros',
 #         activation='tanh'
@@ -73,34 +75,36 @@ optimizer = tf.keras.optimizers.Adam()
 
 model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy']) #0 또는 1로 분류하기 때문에 binary_crossentropy를 loss함수로 선정
 
-history = model.fit(X_train_std, y_train, batch_size=50, epochs=50, verbose=1, validation_split=0.1)
+callback_list = [tf.keras.callbacks.ModelCheckpoint(filepath='NN_model.h5', monitor='val_loss', save_best_only=True), tf.keras.callbacks.EarlyStopping(patience=15)]
+
+history = model.fit(X_train_std, y_train, batch_size=10, epochs=500, verbose=1, validation_split=0.2, callbacks=callback_list)
 
 # history_dict = history.history
 # print(history_dict.keys())
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
 loss = history.history['loss']
 val_loss = history.history['val_loss']
 
-# epochs = np.arange(1, len(acc)+1)
+epochs = np.arange(1, len(acc)+1)
 
-# plt.plot(epochs, loss, label='Training loss')
-# plt.plot(epochs, val_loss, label='Validation loss')
-# plt.title('Training and validation loss')
-# plt.xlabel('Epochs')
-# plt.ylabel('Loss')
-# plt.legend()
-# plt.show()
+plt.plot(epochs, loss, label='Training loss')
+plt.plot(epochs, val_loss, label='Validation loss')
+plt.title('Training and validation loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
 
-# plt.plot(epochs, acc, label='Training accuracy')
-# plt.plot(epochs, val_acc, label='Validation accuracy')
-# plt.title('Training and validation accuracy')
-# plt.xlabel('Epochs')
-# plt.ylabel('accuracy')
-# plt.legend()
-# plt.show()
+plt.plot(epochs, acc, label='Training accuracy')
+plt.plot(epochs, val_acc, label='Validation accuracy')
+plt.title('Training and validation accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('accuracy')
+plt.legend()
+plt.show()
 
 y_test_pred = model.predict_classes(X_test_std, verbose=0)
 
@@ -110,19 +114,17 @@ print('Train Accuracy score: %.3f' % (acc[-1]))
 print('Test Accuracy score: %.3f' % (accuracy_score(y_test, y_test_pred)))
 print('Test ROCAUC score: %.3f' % (roc_auc_score(y_test, y_test_pred)))
 
-# from sklearn.metrics import confusion_matrix
-# confmat = confusion_matrix(y_true=y_test, y_pred=y_test_pred)
+from sklearn.metrics import confusion_matrix
+confmat = confusion_matrix(y_true=y_test, y_pred=y_test_pred)
 
-# fig, ax = plt.subplots(figsize=(2.5, 2.5))
-# ax.matshow(confmat, cmap=plt.cm.Blues, alpha=0.5)
-# for i in range(confmat.shape[0]):
-#     for j in range(confmat.shape[1]):
-#         ax.text(x=j, y=i, s=confmat[i, j], va='center', ha='center')
+fig, ax = plt.subplots(figsize=(2.5, 2.5))
+ax.matshow(confmat, cmap=plt.cm.Blues, alpha=0.5)
+for i in range(confmat.shape[0]):
+    for j in range(confmat.shape[1]):
+        ax.text(x=j, y=i, s=confmat[i, j], va='center', ha='center')
 
-# plt.title('Test data confusion matrix')
-# plt.xlabel('predicted label')
-# plt.ylabel('true label')
-# plt.tight_layout()
-# plt.show()
-
-print('a')
+plt.title('Test data confusion matrix')
+plt.xlabel('predicted label')
+plt.ylabel('true label')
+plt.tight_layout()
+plt.show()
