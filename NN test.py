@@ -31,7 +31,7 @@ model = tf.keras.models.Sequential()
 
 model.add(
     tf.keras.layers.Dense(
-        units=8,
+        units=6,
         input_dim=X_train_std.shape[1],
         kernel_initializer='glorot_uniform',
         bias_initializer='zeros',
@@ -69,15 +69,15 @@ model.add(
     )
 )
 
-# model.summary()
+model.summary()
 
 optimizer = tf.keras.optimizers.Adam()
 
 model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy']) #0 또는 1로 분류하기 때문에 binary_crossentropy를 loss함수로 선정
 
-callback_list = [tf.keras.callbacks.ModelCheckpoint(filepath='NN_model.h5', monitor='val_loss', save_best_only=True), tf.keras.callbacks.EarlyStopping(patience=15)]
+callback_list = [tf.keras.callbacks.ModelCheckpoint(filepath='NN_model.h5', monitor='val_loss', save_best_only=True), tf.keras.callbacks.EarlyStopping(patience=20)]
 
-history = model.fit(X_train_std, y_train, batch_size=10, epochs=500, verbose=1, validation_split=0.2, callbacks=callback_list)
+history = model.fit(X_train_std, y_train, batch_size=8, epochs=500, verbose=1, validation_split=0.2, callbacks=callback_list)
 
 # history_dict = history.history
 # print(history_dict.keys())
