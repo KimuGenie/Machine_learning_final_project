@@ -31,21 +31,11 @@ model = tf.keras.models.Sequential()
 
 model.add(
     tf.keras.layers.Dense(
-        units=6,
+        units=8,
         input_dim=X_train_std.shape[1],
         kernel_initializer='glorot_uniform',
         bias_initializer='zeros',
-        activation='relu'
-    )
-)
-
-model.add(
-    tf.keras.layers.Dense(
-        units=6,
-        input_dim=6,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='zeros',
-        activation='relu'
+        activation='tanh'
     )
 )
 
@@ -53,7 +43,6 @@ model.add(
 model.add(
     tf.keras.layers.Dense(
         units=1,
-        input_dim=6,
         kernel_initializer='glorot_uniform',
         bias_initializer='zeros',
         activation='sigmoid'
